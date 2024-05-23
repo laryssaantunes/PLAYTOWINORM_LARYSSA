@@ -1,24 +1,33 @@
+//Importação de módulos
+require("dotenv").config();
 const express = require("express");
-const bodyParser = require('body-parser');
-const db = require('./config/database');
+const conn = require("./db/conn");
 const Usuario = require('./models/Usuario');
 const Jogo = require('./models/Jogo');
-const conn = require("./config/database");
+const exphbs = require("express-handlebars");
 
 
-
-require("dotenv").config();
-const conn = require("./db/conn");
-
+//Instanciaçao do servidor
 const app = express();
+
+//Vinculação do Handlebars ao Express 
+app.engine("handelebars", exphbs.engine());
+app.set("view engine", "handlebars");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Rota para carregar o formulário de criação de usuário
-app.get("/usuarios/novo", (req, res) => {
-    res.sendFile(`${__dirname}/views/formUsuario.html`);
+
+app.get("/", (req, res)=> {
+res.render("home");
 });
+
+
+app.get("/usuarios/novo", (req, res) => {
+   res.render("formUsuario");
+});
+
 
 // Rota para criar um novo usuário
 app.post("/usuario/novo", async (req, res) => {
@@ -44,11 +53,6 @@ conn.sync()
     .catch((err) => {
         console.log("Ocorreu um erro ao sincronizar o banco de dados: " + err);
     });
-
-// Conexão com o banco de dados
-db.authenticate()
-    .then(() => console.log('Conexão com o banco de dados estabelecida...'))
-    .catch(err => console.error('Erro ao conectar com o banco de dados:', err));
 
 // Rotas para APIs
 app.post('/api/usuarios', async (req, res) => {
