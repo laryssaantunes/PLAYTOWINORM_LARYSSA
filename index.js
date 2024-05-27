@@ -14,6 +14,7 @@ const app = express();
 app.engine("handelebars", exphbs.engine());
 app.set("view engine", "handlebars");
 
+//Configuração no express para facilitar a captura de dadpos de formulários
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -23,17 +24,25 @@ app.get("/", (req, res)=> {
 res.render("home");
 });
 
+app.get("/usuario", async (req, res) => {
+    const usuario = await Usuario.findAll ({raw: true});
+    res.render("usuarios", { usuarios} );
+})
 
 app.get("/usuarios/novo", (req, res) => {
    res.render("formUsuario");
 });
 
+app.get("/jpogo/novo" , (req, res ) => {
+    res.sendFile('${__dirname}/views/formJogo.html');
+});
 
-// Rota para criar um novo usuário
 app.post("/usuario/novo", async (req, res) => {
-    const { nickname, nome } = req.body;
-    const dadosUsuario = { nickname, nome };
-
+    const dadosUsuario ={
+    nickname:  req.body.nickname,
+    nome: req.body.nome,
+};
+        
     try {
         const usuario = await Usuario.create(dadosUsuario);
         res.send("Usuário inserido sob o id " + usuario.id);
