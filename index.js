@@ -11,7 +11,7 @@ const exphbs = require("express-handlebars");
 const app = express();
 
 //Vinculação do Handlebars ao Express 
-app.engine("handelebars", exphbs.engine());
+app.engine("handlebars", exphbs.engine());
 app.set("view engine", "handlebars");
 
 //Configuração no express para facilitar a captura de dadpos de formulários
@@ -24,8 +24,8 @@ app.get("/", (req, res)=> {
 res.render("home");
 });
 
-app.get("/usuario", async (req, res) => {
-    const usuario = await Usuario.findAll ({raw: true});
+app.get("/usuarios", async (req, res) => {
+    const usuarios = await Usuario.findAll ({raw: true});
     res.render("usuarios", { usuarios} );
 })
 
@@ -37,7 +37,8 @@ app.get("/jpogo/novo" , (req, res ) => {
     res.sendFile('${__dirname}/views/formJogo.html');
 });
 
-app.post("/usuario/novo", async (req, res) => {
+
+app.post("/usuarios/novo", async (req, res) => {
     const dadosUsuario ={
     nickname:  req.body.nickname,
     nome: req.body.nome,
@@ -48,6 +49,31 @@ app.post("/usuario/novo", async (req, res) => {
         res.send("Usuário inserido sob o id " + usuario.id);
     } catch (err) {
         res.status(500).send("Erro ao criar usuário: " + err.message);
+    }
+});
+
+app.get("usuarios/:id/update", async (req, res) => {
+    const id = psarseInt (req.params.id);
+    const usuario = await Usuario.findByPk(id, {raw: true});
+    res.render("forUsuario",{usuario});
+});
+
+app.post("usuarios/:id/update", async (req, res) => {
+    const id = postInt(req.params.id);
+
+    const dadosUsuario = {
+        nickname: {id: id},
+        nome: req.body.nome,
+     }
+
+     const retorno = await Usuario.update(dadosUsuario,
+        {where: {id: id},
+    });
+
+    if(retorno>0){
+        res.redirect("/usuarios");
+    } else {
+        res.send("Erro ao atualizar usuário")
     }
 });
 
@@ -81,10 +107,3 @@ app.post('/api/jogos', async (req, res) => {
         res.status(400).json({ error: err.message });
     }
 });
-
-
-
-
-
-
-
