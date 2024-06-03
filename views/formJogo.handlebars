@@ -1,13 +1,13 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Formulário de Cadastro de Jogos</title>
-</head>
-<body>
-  <h1>Cadastro de Jogo</h1>
+
+<!--Definindo se é um form de atualização ou de cadastro-->
+{{#if jogo}}
+  <h1>Atualiizar jogo</h1>
+<form action="/usuarios/{{isiario.id}}/update" method="post">
+{{else}}
+<h1>Cadastro de Jogo</h1>
   <form action="/api/jogos" method="POST">
+{{/if}}
+    <div>
     <label for="nome">Nome do Jogo:</label><br>
     <input type="text" id="nome" name="nome" required><br><br>
 
@@ -22,8 +22,11 @@
 
     <label for="lancamento">Data de Lançamento:</label><br>
     <input type="date" id="lancamento" name="lancamento" required><br><br>
-
-    <input type="submit" value="Cadastrar">
+    </div>
+ {{#if jogo}}
+    <input type="submit" value="Salvar"/>
+   {{else}}
+    <input type="submit" value="Cadastrar"/>
+   {{/if}}
   </form>
-</body>
-</html>
+

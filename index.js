@@ -33,11 +33,6 @@ app.get("/usuarios/novo", (req, res) => {
    res.render("formUsuario");
 });
 
-app.get("/jpogo/novo" , (req, res ) => {
-    res.sendFile('${__dirname}/views/formJogo.html');
-});
-
-
 app.post("/usuarios/novo", async (req, res) => {
     const dadosUsuario ={
     nickname:  req.body.nickname,
@@ -52,13 +47,13 @@ app.post("/usuarios/novo", async (req, res) => {
     }
 });
 
-app.get("usuarios/:id/update", async (req, res) => {
-    const id = psarseInt (req.params.id);
+app.get("/usuarios/:id/update", async (req, res) => {
+    const id = parseInt (req.params.id);
     const usuario = await Usuario.findByPk(id, {raw: true});
-    res.render("forUsuario",{usuario});
+    res.render("formUsuario",{usuario});
 });
 
-app.post("usuarios/:id/update", async (req, res) => {
+app.post("/usuarios/:id/update", async (req, res) => {
     const id = postInt(req.params.id);
 
     const dadosUsuario = {
@@ -76,6 +71,87 @@ app.post("usuarios/:id/update", async (req, res) => {
         res.send("Erro ao atualizar usuário")
     }
 });
+
+app.post("/usuarios/:id/delete" , async (req, res) => {
+    const id = parseInt(req.params.id);  
+
+    
+    const retorno = await Usuario.destroy({where: {id: id}});
+
+    if(retorno > 0){
+        res.redirect("/usuarios");
+    } else {
+        res.send("Erro ao excluir usuário");
+    }
+});
+
+
+app.get("/jogos" , async (req,res) => {
+    const jogos = await Jogo.findAll ({raw: true});
+    res.render("jogos" , {jogos});
+});
+
+app.get("/jogos/novo" , (req, res ) => {
+    res.render('formJogo');
+});
+
+app.post("/jogos/novo", async (req, res) => {
+    const dadosJogos ={
+    nomedojogo:  req.body.nomedojogo,
+    plataforma: req.body.plataforma,
+    genero: req.body.genero,
+    preco: req.body.preco,
+    datadenascimento: req.body.datadenascimento,
+};
+    try {
+        const jogos = await Jogo.create(dadosJogos);
+        res.send("Jogo inserido sob o id " + jogos.id);
+    } catch (err) {
+        res.status(500).send("Erro ao criar jogo: " + err.message);
+    }
+});
+
+app.get("/jogos/:id/update", async (req, res) => {
+    const id = parseInt (req.params.id);
+    const jogos = await Jogo.findByPk(id, {raw: true});
+    res.render("formJogo",{jogos});
+});
+
+app.post("/jogos/:id/update", async (req, res) => {
+    const id = postInt(req.params.id);
+
+    const dadosJogos = {
+        nomedojogo:  req.body.nomedojogo,
+         plataforma: req.body.plataforma,
+         genero: req.body.genero,
+         preco: req.body.preco,
+         datadenascimento: req.body.datadenascimento,
+     }
+
+     const retorno = await Jogo.update(dadosJogos, {where: {id: id}});
+
+    if(retorno>0){
+        res.redirect("/jogos");
+    } else {
+        res.send("Erro ao atualizar jogo")
+    }
+});
+
+app.post("/jogos/:id/delete" , async (req, res) => {
+    const id = parseInt(req.params.id);  
+
+    
+    const retorno = await Jogo.destroy({where: {id: id}});
+
+    if(retorno > 0){
+        res.redirect("/jogos");
+    } else {
+        res.send("Erro ao excluir usuário");
+    }
+});
+
+
+
 
 // Sincroniza o banco de dados e inicia o servidor
 conn.sync()
