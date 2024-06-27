@@ -4,7 +4,12 @@ const express = require("express");
 const conn = require("./db/conn");
 const Usuario = require('./models/Usuario');
 const Jogo = require('./models/Jogo');
+const Cartao = require("./models/Cartao");
+const Conquista = require("./models/Cartao");
 const exphbs = require("express-handlebars");
+
+Jogo.belongsToMany(Usuario, { through: "aquisicoes" });
+Usuario.belongsToMany(Jogo, { through: "aquisicoes" });
 
 
 //Instanciaçao do servidor
@@ -97,12 +102,13 @@ app.get("/jogos/novo" , (req, res ) => {
 
 app.post("/jogos/novo", async (req, res) => {
     const dadosJogos ={
-    nomedojogo:  req.body.nomedojogo,
-    plataforma: req.body.plataforma,
-    genero: req.body.genero,
-    preco: req.body.preco,
-    datadenascimento: req.body.datadenascimento,
-};
+        nome:  req.body.nome,
+        plataforma: req.body.plataforma,
+        genero: req.body.genero,
+        preco: req.body.preco,
+        lancamento: req.body.lancamento,
+    };
+
     try {
         const jogos = await Jogo.create(dadosJogos);
         res.send("Jogo inserido sob o id " + jogos.id);
@@ -121,11 +127,11 @@ app.post("/jogos/:id/update", async (req, res) => {
     const id = postInt(req.params.id);
 
     const dadosJogos = {
-        nomedojogo:  req.body.nomedojogo,
+        nome:  req.body.nomedojogo,
          plataforma: req.body.plataforma,
          genero: req.body.genero,
          preco: req.body.preco,
-         datadenascimento: req.body.datadenascimento,
+         lancamento: req.body.lancamento,
      }
 
      const retorno = await Jogo.update(dadosJogos, {where: {id: id}});
@@ -153,17 +159,7 @@ app.post("/jogos/:id/delete" , async (req, res) => {
 
 
 
-// Sincroniza o banco de dados e inicia o servidor
-conn.sync()
-    .then(() => {
-        const PORT = process.env.PORT || 8000;
-        app.listen(PORT, () => {
-            console.log(`Servidor rodando na porta ${PORT}!`);
-        });
-    })
-    .catch((err) => {
-        console.log("Ocorreu um erro ao sincronizar o banco de dados: " + err);
-    });
+
 
 // Rotas para APIs
 app.post('/api/usuarios', async (req, res) => {
@@ -183,3 +179,56 @@ app.post('/api/jogos', async (req, res) => {
         res.status(400).json({ error: err.message });
     }
 });
+
+
+// Rotas para cartões
+app.get("/usuarios/:id/cartoes", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const usuario = await Usuario.findByPk(id, { raw: true });
+  
+    const cartoes = await Cartao.findAll({
+      raw: true,
+      where: { UsuarioId: id },
+    });
+  
+    res.render("cartoes.handlebars", { usuario, cartoes });
+  });
+  
+  //Formulário de cadastro de cartão
+  app.get("/usuarios/:id/novoCartao", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const usuario = await Usuario.findByPk(id, { raw: true });
+  
+    res.render("formCartao", { usuario });
+  });
+  
+  //Cadastro de cartão
+  app.post("/usuarios/:id/novoCartao", async (req, res) => {
+    const id = parseInt(req.params.id);
+  
+    const dadosCartao = {
+      numero: req.body.numero,
+      nome: req.body.nome,
+      codSeguranca: req.body.codSeguranca,
+      UsuarioId: id,
+    };
+  
+    await Cartao.create(dadosCartao);
+  
+    res.redirect(`/usuarios/${id}/cartoes`);
+  });
+  
+
+  // Sincroniza o banco de dados e inicia o servidor
+conn.sync()
+.then(() => {
+    const PORT = process.env.PORT || 8000;
+    app.listen(PORT, () => {
+        console.log(`Servidor rodando na porta ${PORT}!`);
+    });
+})
+.catch((err) => {
+    console.log("Ocorreu um erro ao sincronizar o banco de dados: " + err);
+});
+
+  

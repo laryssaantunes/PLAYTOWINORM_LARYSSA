@@ -15,11 +15,11 @@ const Jogo = db.define('Jogo', {
     allowNull: false
   },
   preco: {
-    type: DataTypes.FLOAT,
+    type: DataTypes.DOUBLE,
     allowNull: false
   },
   lancamento: {
-    type: DataTypes.DATE,
+    type: DataTypes.STRING,
     allowNull: false
   }
 });
