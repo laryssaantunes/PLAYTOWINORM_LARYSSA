@@ -5,7 +5,7 @@ const conn = require("./db/conn");
 const Usuario = require('./models/Usuario');
 const Jogo = require('./models/Jogo');
 const Cartao = require("./models/Cartao");
-const Conquista = require("./models/Cartao");
+const Conquista = require("./models/Conquista");
 const exphbs = require("express-handlebars");
 
 Jogo.belongsToMany(Usuario, { through: "aquisicoes" });
@@ -156,11 +156,6 @@ app.post("/jogos/:id/delete" , async (req, res) => {
     }
 });
 
-
-
-
-
-
 // Rotas para APIs
 app.post('/api/usuarios', async (req, res) => {
     try {
@@ -179,6 +174,46 @@ app.post('/api/jogos', async (req, res) => {
         res.status(400).json({ error: err.message });
     }
 });
+
+
+// Rotas para conquista
+app.get("/jogos/:id/conquista", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const jogo = await Jogo.findByPk(id, { raw: true });
+  
+    const conquista = await Conquista.findAll({
+      raw: true,
+      where: { JogoId: id },
+    });
+  
+    res.render("conquista.handlebars", { jogo, Conquista });
+  });
+  
+  //Formulário de cadastro de conquista
+  app.get("/jogos/:id/novaConquista", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const jogo = await Jogo.findByPk(id, { raw: true });
+  
+    res.render("formConquista", { Jogo });
+  });
+  
+  //Cadastro de conquista
+  app.post("/jogos/:id/novaConquista", async (req, res) => {
+    const id = parseInt(req.params.id);
+  
+    const dadosConquista = {
+      titulo: req.body.titulo,
+      nomdescricao: req.body.descricao,
+      jogoId: req.body.jogoId,
+      JodoId: id,
+    };
+  
+    await Conquista.create(dadosConquista);
+  
+    res.redirect(`/jogos/${id}/conquitas`);
+  });
+  
+
 
 
 // Rotas para cartões

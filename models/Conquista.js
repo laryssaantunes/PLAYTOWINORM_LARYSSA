@@ -1,5 +1,10 @@
-module.exports = (sequelize, DataTypes) => {
-    const Conquista = sequelize.define('Conquista', {
+const db = require("../db/conn");
+const { DataTypes } = require("sequelize");
+const Jogo = require("../models/Jogo");
+
+const Conquista = db.define(
+  "Conquista",
+  {
       titulo: {
         type: DataTypes.STRING,
         allowNull: false
@@ -16,13 +21,5 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     });
-    
-    Conquista.associate = (models) => {
-      Conquista.belongsTo(models.Jogo, {
-        foreignKey: 'jogoId',
-        as: 'jogo'
-      });
-    };
-    
-    return Conquista;
-  };
+    Conquista.belongsTo(Jogo);
+    Jogo.hasMany(Conquista);
