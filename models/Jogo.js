@@ -4,23 +4,23 @@ const db = require('../db/conn');
 const Jogo = db.define('Jogo', {
   nome: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true
   },
   plataforma: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true
   },
   genero: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true
   },
   preco: {
     type: DataTypes.DOUBLE,
-    allowNull: false
+    allowNull: true
   },
   lancamento: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true
   }
 });
 

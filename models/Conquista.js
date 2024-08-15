@@ -13,13 +13,6 @@ const Conquista = db.define(
         type: DataTypes.STRING,
         allowNull: false
       },
-      jogoId: {
-        type: DataTypes.INTEGER,
-        references: {
-          model: 'Jogo',
-          key: 'id'
-        }
-      }
     });
     Conquista.belongsTo(Jogo);
     Jogo.hasMany(Conquista);
